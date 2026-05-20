@@ -21,16 +21,16 @@ description: "Task list template for feature implementation"
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- **Main sources**: `src/main/java/com/psybergate/financialcalculator/`
+- **Test sources**: `src/test/java/com/psybergate/financialcalculator/`
+- **Layers**: `entity/`, `dto/`, `repository/`, `service/`, `controller/`, `exception/`, `config/`
+- Use exact file paths in task descriptions (e.g., `src/main/java/.../entity/User.java`)
 
 <!--
   ============================================================================
   IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
 
-  The /speckit.tasks command MUST replace these with actual tasks based on:
+  The /speckit-tasks command MUST replace these with actual tasks based on:
   - User stories from spec.md (with their priorities P1, P2, P3...)
   - Feature requirements from plan.md
   - Entities from data-model.md
