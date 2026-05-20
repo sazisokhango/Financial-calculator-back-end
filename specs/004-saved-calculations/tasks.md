@@ -16,7 +16,7 @@ Feature 3 files; `SavedCalculationsSpec.java` is a new test class keeping scenar
 
 ## Phase 1: Setup
 
-- [ ] T001 Verify all 26 existing tests pass with `./mvnw test` from project root
+- [x] T001 Verify all 26 existing tests pass with `./mvnw test` from project root
 
 ---
 
@@ -26,9 +26,9 @@ Feature 3 files; `SavedCalculationsSpec.java` is a new test class keeping scenar
 
 ⚠️ **CRITICAL**: All Phase 3–6 tasks depend on this phase.
 
-- [ ] T002 [P] Create `TaxCalculationNotFoundException` in `src/main/java/com/psybergate/financialcalculator/exception/TaxCalculationNotFoundException.java` extending `RuntimeException` with a single `String message` constructor
-- [ ] T003 [P] Update `GlobalExceptionHandler` in `src/main/java/com/psybergate/financialcalculator/exception/GlobalExceptionHandler.java` to handle `TaxCalculationNotFoundException` → return `404 Not Found` with body `{ "status": 404, "error": "Not Found", "message": ex.getMessage() }`
-- [ ] T004 Add `List<TaxCalculation> findByUser(User user)` method to `TaxCalculationRepository` in `src/main/java/com/psybergate/financialcalculator/repository/TaxCalculationRepository.java` (Spring Data JPA derived query — no body needed)
+- [x] T002 [P] Create `TaxCalculationNotFoundException` in `src/main/java/com/psybergate/financialcalculator/exception/TaxCalculationNotFoundException.java` extending `RuntimeException` with a single `String message` constructor
+- [x] T003 [P] Update `GlobalExceptionHandler` in `src/main/java/com/psybergate/financialcalculator/exception/GlobalExceptionHandler.java` to handle `TaxCalculationNotFoundException` → return `404 Not Found` with body `{ "status": 404, "error": "Not Found", "message": ex.getMessage() }`
+- [x] T004 Add `List<TaxCalculation> findByUser(User user)` method to `TaxCalculationRepository` in `src/main/java/com/psybergate/financialcalculator/repository/TaxCalculationRepository.java` (Spring Data JPA derived query — no body needed)
 
 **Checkpoint**: Shared infrastructure ready — all user story phases can begin.
 
@@ -40,9 +40,9 @@ Feature 3 files; `SavedCalculationsSpec.java` is a new test class keeping scenar
 
 **Independent Test**: Save two calculations for user A and one for user B. `GET /api/tax?userId=A` → 200 with exactly 2 records. `GET /api/tax?userId=B` → 200 with 1 record. `GET /api/tax?userId=999` → 404.
 
-- [ ] T005 [US1] Add `findAllByUser(Long userId)` to `TaxCalculationService` in `src/main/java/com/psybergate/financialcalculator/service/TaxCalculationService.java` — look up `User` by userId, throw `UserNotFoundException("User not found")` if absent, call `taxCalculationRepository.findByUser(user)`, map each `TaxCalculation` to `TaxCalculationResponse` using existing `toResponse()`, return `List<TaxCalculationResponse>`
-- [ ] T006 [US1] Add `GET /api/tax` endpoint to `TaxController` in `src/main/java/com/psybergate/financialcalculator/controller/TaxController.java` — `@GetMapping` with `@RequestParam Long userId`, delegates to `taxCalculationService.findAllByUser(userId)`, returns `ResponseEntity<List<TaxCalculationResponse>>` with `200 OK`
-- [ ] T007 [US1] Write US1 test scenarios in `src/test/java/com/psybergate/financialcalculator/tax/SavedCalculationsSpec.java` — `@SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("test")`, `@BeforeEach` clears both repos: (1) save two calculations for userA, `GET /api/tax?userId=userA` → 200, array size 2; (2) user with no calculations → 200, `[]`; (3) `GET /api/tax?userId=999` → 404, `message: "User not found"`; (4) save calc for userA and userB, verify `GET /api/tax?userId=userA` does NOT include userB's record
+- [x] T005 [US1] Add `findAllByUser(Long userId)` to `TaxCalculationService` in `src/main/java/com/psybergate/financialcalculator/service/TaxCalculationService.java` — look up `User` by userId, throw `UserNotFoundException("User not found")` if absent, call `taxCalculationRepository.findByUser(user)`, map each `TaxCalculation` to `TaxCalculationResponse` using existing `toResponse()`, return `List<TaxCalculationResponse>`
+- [x] T006 [US1] Add `GET /api/tax` endpoint to `TaxController` in `src/main/java/com/psybergate/financialcalculator/controller/TaxController.java` — `@GetMapping` with `@RequestParam Long userId`, delegates to `taxCalculationService.findAllByUser(userId)`, returns `ResponseEntity<List<TaxCalculationResponse>>` with `200 OK`
+- [x] T007 [US1] Write US1 test scenarios in `src/test/java/com/psybergate/financialcalculator/tax/SavedCalculationsSpec.java` — `@SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("test")`, `@BeforeEach` clears both repos: (1) save two calculations for userA, `GET /api/tax?userId=userA` → 200, array size 2; (2) user with no calculations → 200, `[]`; (3) `GET /api/tax?userId=999` → 404, `message: "User not found"`; (4) save calc for userA and userB, verify `GET /api/tax?userId=userA` does NOT include userB's record
 
 **Checkpoint**: List endpoint verified end-to-end. US1 independently validated.
 
@@ -54,9 +54,9 @@ Feature 3 files; `SavedCalculationsSpec.java` is a new test class keeping scenar
 
 **Independent Test**: Save a calculation, capture its id, `GET /api/tax/{id}` → 200 with all breakdown fields matching. `GET /api/tax/999` → 404 with `message: "Calculation not found"`.
 
-- [ ] T008 [US2] Add `findById(Long id)` to `TaxCalculationService` in `src/main/java/com/psybergate/financialcalculator/service/TaxCalculationService.java` — call `taxCalculationRepository.findById(id)`, throw `TaxCalculationNotFoundException("Calculation not found")` if absent, return `toResponse(entity)`
-- [ ] T009 [US2] Add `GET /api/tax/{id}` endpoint to `TaxController` in `src/main/java/com/psybergate/financialcalculator/controller/TaxController.java` — `@GetMapping("/{id}")` with `@PathVariable Long id`, delegates to `taxCalculationService.findById(id)`, returns `ResponseEntity<TaxCalculationResponse>` with `200 OK`
-- [ ] T010 [US2] Write US2 test scenarios in `src/test/java/com/psybergate/financialcalculator/tax/SavedCalculationsSpec.java`: (1) save a calculation, `GET /api/tax/{id}` → 200, verify `id`, `title`, `finalTaxLiability` match; (2) `GET /api/tax/999999` → 404, `status: 404`, `error: "Not Found"`, `message: "Calculation not found"`
+- [x] T008 [US2] Add `findById(Long id)` to `TaxCalculationService` in `src/main/java/com/psybergate/financialcalculator/service/TaxCalculationService.java` — call `taxCalculationRepository.findById(id)`, throw `TaxCalculationNotFoundException("Calculation not found")` if absent, return `toResponse(entity)`
+- [x] T009 [US2] Add `GET /api/tax/{id}` endpoint to `TaxController` in `src/main/java/com/psybergate/financialcalculator/controller/TaxController.java` — `@GetMapping("/{id}")` with `@PathVariable Long id`, delegates to `taxCalculationService.findById(id)`, returns `ResponseEntity<TaxCalculationResponse>` with `200 OK`
+- [x] T010 [US2] Write US2 test scenarios in `src/test/java/com/psybergate/financialcalculator/tax/SavedCalculationsSpec.java`: (1) save a calculation, `GET /api/tax/{id}` → 200, verify `id`, `title`, `finalTaxLiability` match; (2) `GET /api/tax/999999` → 404, `status: 404`, `error: "Not Found"`, `message: "Calculation not found"`
 
 **Checkpoint**: Single-record read verified. US2 independently validated.
 
@@ -68,9 +68,9 @@ Feature 3 files; `SavedCalculationsSpec.java` is a new test class keeping scenar
 
 **Independent Test**: Save calculation with salary=500,000. `PUT /api/tax/{id}` with salary=600,000 → 200, `taxBeforeRebate=152867.00`, `finalTaxLiability=135632.00`, `id` unchanged.
 
-- [ ] T011 [US3] Add `update(Long id, TaxCalculationRequest request)` to `TaxCalculationService` in `src/main/java/com/psybergate/financialcalculator/service/TaxCalculationService.java` — find existing by id (throw `TaxCalculationNotFoundException` if absent); validate user by request.userId (throw `UserNotFoundException` if absent); normalise null numerics to ZERO; recompute all 7 breakdown fields using `SarsTaxCalculator`; update all fields on the existing entity (keep same `user` reference); save and return `toResponse()`
-- [ ] T012 [US3] Add `PUT /api/tax/{id}` endpoint to `TaxController` in `src/main/java/com/psybergate/financialcalculator/controller/TaxController.java` — `@PutMapping("/{id}")` with `@PathVariable Long id` and `@Valid @RequestBody TaxCalculationRequest`, delegates to `taxCalculationService.update(id, request)`, returns `ResponseEntity<TaxCalculationResponse>` with `200 OK`
-- [ ] T013 [US3] Write US3 test scenarios in `src/test/java/com/psybergate/financialcalculator/tax/SavedCalculationsSpec.java`: (1) save salary=500000/age=35, PUT with salary=600000/age=35 → 200, `taxBeforeRebate=152867.00`, `finalTaxLiability=135632.00`, same `id`; (2) PUT with negative salary → 400; (3) PUT to non-existent id 999999 → 404 `message: "Calculation not found"`
+- [x] T011 [US3] Add `update(Long id, TaxCalculationRequest request)` to `TaxCalculationService` in `src/main/java/com/psybergate/financialcalculator/service/TaxCalculationService.java` — find existing by id (throw `TaxCalculationNotFoundException` if absent); validate user by request.userId (throw `UserNotFoundException` if absent); normalise null numerics to ZERO; recompute all 7 breakdown fields using `SarsTaxCalculator`; update all fields on the existing entity (keep same `user` reference); save and return `toResponse()`
+- [x] T012 [US3] Add `PUT /api/tax/{id}` endpoint to `TaxController` in `src/main/java/com/psybergate/financialcalculator/controller/TaxController.java` — `@PutMapping("/{id}")` with `@PathVariable Long id` and `@Valid @RequestBody TaxCalculationRequest`, delegates to `taxCalculationService.update(id, request)`, returns `ResponseEntity<TaxCalculationResponse>` with `200 OK`
+- [x] T013 [US3] Write US3 test scenarios in `src/test/java/com/psybergate/financialcalculator/tax/SavedCalculationsSpec.java`: (1) save salary=500000/age=35, PUT with salary=600000/age=35 → 200, `taxBeforeRebate=152867.00`, `finalTaxLiability=135632.00`, same `id`; (2) PUT with negative salary → 400; (3) PUT to non-existent id 999999 → 404 `message: "Calculation not found"`
 
 **Checkpoint**: Update with recalculation verified. US3 independently validated.
 
@@ -82,9 +82,9 @@ Feature 3 files; `SavedCalculationsSpec.java` is a new test class keeping scenar
 
 **Independent Test**: Save a calculation, `DELETE /api/tax/{id}` → 204. Then `GET /api/tax/{id}` → 404. `DELETE /api/tax/999` → 404.
 
-- [ ] T014 [US4] Add `delete(Long id)` to `TaxCalculationService` in `src/main/java/com/psybergate/financialcalculator/service/TaxCalculationService.java` — verify existence with `taxCalculationRepository.existsById(id)`, throw `TaxCalculationNotFoundException("Calculation not found")` if absent, call `taxCalculationRepository.deleteById(id)`
-- [ ] T015 [US4] Add `DELETE /api/tax/{id}` endpoint to `TaxController` in `src/main/java/com/psybergate/financialcalculator/controller/TaxController.java` — `@DeleteMapping("/{id}")` with `@PathVariable Long id`, delegates to `taxCalculationService.delete(id)`, returns `ResponseEntity<Void>` with `204 No Content`
-- [ ] T016 [US4] Write US4 test scenarios in `src/test/java/com/psybergate/financialcalculator/tax/SavedCalculationsSpec.java`: (1) save a calculation, `DELETE /api/tax/{id}` → 204; (2) after delete, `GET /api/tax/{id}` → 404; (3) `DELETE /api/tax/999999` → 404 `message: "Calculation not found"`
+- [x] T014 [US4] Add `delete(Long id)` to `TaxCalculationService` in `src/main/java/com/psybergate/financialcalculator/service/TaxCalculationService.java` — verify existence with `taxCalculationRepository.existsById(id)`, throw `TaxCalculationNotFoundException("Calculation not found")` if absent, call `taxCalculationRepository.deleteById(id)`
+- [x] T015 [US4] Add `DELETE /api/tax/{id}` endpoint to `TaxController` in `src/main/java/com/psybergate/financialcalculator/controller/TaxController.java` — `@DeleteMapping("/{id}")` with `@PathVariable Long id`, delegates to `taxCalculationService.delete(id)`, returns `ResponseEntity<Void>` with `204 No Content`
+- [x] T016 [US4] Write US4 test scenarios in `src/test/java/com/psybergate/financialcalculator/tax/SavedCalculationsSpec.java`: (1) save a calculation, `DELETE /api/tax/{id}` → 204; (2) after delete, `GET /api/tax/{id}` → 404; (3) `DELETE /api/tax/999999` → 404 `message: "Calculation not found"`
 
 **Checkpoint**: Full CRUD lifecycle complete. All 4 user stories verified.
 
@@ -92,7 +92,7 @@ Feature 3 files; `SavedCalculationsSpec.java` is a new test class keeping scenar
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T017 Run `./mvnw test` from project root — confirm all tests (Features 1–4) pass with zero failures
+- [x] T017 Run `./mvnw test` from project root — confirm all tests (Features 1–4) pass with zero failures
 
 ---
 

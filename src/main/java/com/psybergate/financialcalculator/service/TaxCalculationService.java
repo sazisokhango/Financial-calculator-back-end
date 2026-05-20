@@ -4,6 +4,7 @@ import com.psybergate.financialcalculator.dto.TaxCalculationRequest;
 import com.psybergate.financialcalculator.dto.TaxCalculationResponse;
 import com.psybergate.financialcalculator.entity.TaxCalculation;
 import com.psybergate.financialcalculator.entity.User;
+import com.psybergate.financialcalculator.exception.TaxCalculationNotFoundException;
 import com.psybergate.financialcalculator.exception.UserNotFoundException;
 import com.psybergate.financialcalculator.repository.TaxCalculationRepository;
 import com.psybergate.financialcalculator.repository.UserRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -66,6 +68,72 @@ public class TaxCalculationService {
 
         TaxCalculation saved = taxCalculationRepository.save(entity);
         return toResponse(saved);
+    }
+
+    public List<TaxCalculationResponse> findAllByUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        return taxCalculationRepository.findByUser(user).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public TaxCalculationResponse findById(Long id) {
+        return taxCalculationRepository.findById(id)
+                .map(this::toResponse)
+                .orElseThrow(() -> new TaxCalculationNotFoundException("Calculation not found"));
+    }
+
+    public TaxCalculationResponse update(Long id, TaxCalculationRequest request) {
+        TaxCalculation existing = taxCalculationRepository.findById(id)
+                .orElseThrow(() -> new TaxCalculationNotFoundException("Calculation not found"));
+
+        userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        BigDecimal salary            = nullToZero(request.getSalary());
+        BigDecimal interestIncome    = nullToZero(request.getInterestIncome());
+        BigDecimal dividend          = nullToZero(request.getDividend());
+        BigDecimal capitalGain       = nullToZero(request.getCapitalGain());
+        BigDecimal bonus             = nullToZero(request.getBonus());
+        BigDecimal retirementAnnuity = nullToZero(request.getRetirementAnnuity());
+        BigDecimal taxAlreadyPaid    = nullToZero(request.getTaxAlreadyPaid());
+
+        BigDecimal totalIncome      = salary.add(interestIncome).add(dividend).add(capitalGain).add(bonus);
+        BigDecimal totalDeductions  = retirementAnnuity;
+        BigDecimal netTaxableIncome = totalIncome.subtract(totalDeductions).max(BigDecimal.ZERO)
+                                                 .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal taxBeforeRebate  = sarsTaxCalculator.calculateTax(netTaxableIncome);
+        BigDecimal rebate           = sarsTaxCalculator.calculateRebate(request.getAge());
+        BigDecimal finalTaxLiability = taxBeforeRebate.subtract(rebate).subtract(taxAlreadyPaid)
+                                                      .max(BigDecimal.ZERO)
+                                                      .setScale(2, RoundingMode.HALF_UP);
+
+        existing.setTitle(request.getTitle());
+        existing.setDescription(request.getDescription());
+        existing.setSalary(salary);
+        existing.setInterestIncome(interestIncome);
+        existing.setDividend(dividend);
+        existing.setCapitalGain(capitalGain);
+        existing.setBonus(bonus);
+        existing.setRetirementAnnuity(retirementAnnuity);
+        existing.setAge(request.getAge());
+        existing.setTaxAlreadyPaid(taxAlreadyPaid);
+        existing.setTotalIncome(totalIncome.setScale(2, RoundingMode.HALF_UP));
+        existing.setTotalDeductions(totalDeductions.setScale(2, RoundingMode.HALF_UP));
+        existing.setNetTaxableIncome(netTaxableIncome);
+        existing.setTaxBeforeRebate(taxBeforeRebate);
+        existing.setRebate(rebate);
+        existing.setFinalTaxLiability(finalTaxLiability);
+
+        return toResponse(taxCalculationRepository.save(existing));
+    }
+
+    public void delete(Long id) {
+        if (!taxCalculationRepository.existsById(id)) {
+            throw new TaxCalculationNotFoundException("Calculation not found");
+        }
+        taxCalculationRepository.deleteById(id);
     }
 
     private TaxCalculationResponse toResponse(TaxCalculation tc) {
