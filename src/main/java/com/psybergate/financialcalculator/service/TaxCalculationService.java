@@ -24,7 +24,8 @@ public class TaxCalculationService {
     private final SarsTaxCalculator sarsTaxCalculator;
 
     public TaxCalculationResponse save(TaxCalculationRequest request) {
-        User user = userRepository.findById(request.getUserId())
+
+        User user = userRepository.findByEmailIgnoreCase(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         BigDecimal salary            = nullToZero(request.getSalary());
@@ -88,7 +89,7 @@ public class TaxCalculationService {
         TaxCalculation existing = taxCalculationRepository.findById(id)
                 .orElseThrow(() -> new TaxCalculationNotFoundException("Calculation not found"));
 
-        userRepository.findById(request.getUserId())
+        userRepository.findByEmailIgnoreCase(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         BigDecimal salary            = nullToZero(request.getSalary());
