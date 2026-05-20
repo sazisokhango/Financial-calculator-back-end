@@ -2,6 +2,7 @@ package com.psybergate.financialcalculator.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psybergate.financialcalculator.dto.RegisterRequest;
+import com.psybergate.financialcalculator.repository.TaxCalculationRepository;
 import com.psybergate.financialcalculator.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,8 +32,12 @@ class UserManagementSpec {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private TaxCalculationRepository taxCalculationRepository;
+
     @BeforeEach
     void setUp() {
+        taxCalculationRepository.deleteAll();
         userRepository.deleteAll();
     }
 
