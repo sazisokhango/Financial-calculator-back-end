@@ -20,6 +20,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error(400, "Bad Request", message));
     }
 
+    @ExceptionHandler(EmailAlreadyRegisteredException.class)
+    public ResponseEntity<Map<String, Object>> handleEmailAlreadyRegistered(EmailAlreadyRegisteredException ex) {
+        return ResponseEntity.badRequest().body(error(400, "Bad Request", ex.getMessage()));
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

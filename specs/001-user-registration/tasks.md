@@ -18,7 +18,7 @@ and testing of each story.
 
 **Purpose**: Confirm project baseline before implementing anything.
 
-- [ ] T001 Verify project compiles and existing tests pass with `./mvnw test` from project root
+- [x] T001 Verify project compiles and existing tests pass with `./mvnw test` from project root
 
 ---
 
@@ -29,12 +29,12 @@ and exception infrastructure. No user story work begins until this phase is comp
 
 ⚠️ **CRITICAL**: All Phase 3/4/5 tasks depend on this phase completing first.
 
-- [ ] T002 Create `User` JPA entity in `src/main/java/com/psybergate/financialcalculator/entity/User.java` with fields: `id` (Long, auto-generated), `firstName` (String, NOT NULL), `lastName` (String, NOT NULL), `email` (String, NOT NULL, UNIQUE) — use `@Entity`, `@Table(name="users")`, Lombok `@Data`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@Builder`
-- [ ] T003 [P] Create `RegisterRequest` DTO in `src/main/java/com/psybergate/financialcalculator/dto/RegisterRequest.java` with fields `firstName`, `lastName`, `email` (all String) — use Lombok `@Data`, `@NoArgsConstructor`, `@AllArgsConstructor`
-- [ ] T004 [P] Create `UserResponse` DTO in `src/main/java/com/psybergate/financialcalculator/dto/UserResponse.java` with fields `id` (Long), `firstName`, `lastName`, `email` (all String) — use Lombok `@Data`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@Builder`
-- [ ] T005 Create `UserRepository` interface in `src/main/java/com/psybergate/financialcalculator/repository/UserRepository.java` extending `JpaRepository<User, Long>` — add method `Optional<User> findByEmailIgnoreCase(String email)`
-- [ ] T006 Create `EmailAlreadyRegisteredException` in `src/main/java/com/psybergate/financialcalculator/exception/EmailAlreadyRegisteredException.java` extending `RuntimeException` with a message constructor
-- [ ] T007 Update `GlobalExceptionHandler` in `src/main/java/com/psybergate/financialcalculator/exception/GlobalExceptionHandler.java` to handle `EmailAlreadyRegisteredException` → return `400 Bad Request` with `{ "status": 400, "error": "Bad Request", "message": "Email already registered" }`
+- [x] T002 Create `User` JPA entity in `src/main/java/com/psybergate/financialcalculator/entity/User.java` with fields: `id` (Long, auto-generated), `firstName` (String, NOT NULL), `lastName` (String, NOT NULL), `email` (String, NOT NULL, UNIQUE) — use `@Entity`, `@Table(name="users")`, Lombok `@Data`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@Builder`
+- [x] T003 [P] Create `RegisterRequest` DTO in `src/main/java/com/psybergate/financialcalculator/dto/RegisterRequest.java` with fields `firstName`, `lastName`, `email` (all String) — use Lombok `@Data`, `@NoArgsConstructor`, `@AllArgsConstructor`
+- [x] T004 [P] Create `UserResponse` DTO in `src/main/java/com/psybergate/financialcalculator/dto/UserResponse.java` with fields `id` (Long), `firstName`, `lastName`, `email` (all String) — use Lombok `@Data`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@Builder`
+- [x] T005 Create `UserRepository` interface in `src/main/java/com/psybergate/financialcalculator/repository/UserRepository.java` extending `JpaRepository<User, Long>` — add method `Optional<User> findByEmailIgnoreCase(String email)`
+- [x] T006 Create `EmailAlreadyRegisteredException` in `src/main/java/com/psybergate/financialcalculator/exception/EmailAlreadyRegisteredException.java` extending `RuntimeException` with a message constructor
+- [x] T007 Update `GlobalExceptionHandler` in `src/main/java/com/psybergate/financialcalculator/exception/GlobalExceptionHandler.java` to handle `EmailAlreadyRegisteredException` → return `400 Bad Request` with `{ "status": 400, "error": "Bad Request", "message": "Email already registered" }`
 
 **Checkpoint**: Foundation ready — all three user story phases can now begin.
 
@@ -46,9 +46,9 @@ and exception infrastructure. No user story work begins until this phase is comp
 
 **Independent Test**: `POST /api/auth/register` with `{"firstName":"Saziso","lastName":"Khango","email":"saziso@example.com"}` → `201` with id, firstName, lastName, email in body.
 
-- [ ] T008 [US1] Implement `UserService` in `src/main/java/com/psybergate/financialcalculator/service/UserService.java` with method `UserResponse register(RegisterRequest request)` — lowercase the email before saving, map `User` entity to `UserResponse` DTO, inject `UserRepository`
-- [ ] T009 [US1] Implement `AuthController` in `src/main/java/com/psybergate/financialcalculator/controller/AuthController.java` with `@RestController`, `@RequestMapping("/api/auth")` — add `POST /register` method that accepts `@RequestBody RegisterRequest`, delegates to `UserService`, returns `ResponseEntity` with `201 Created` status
-- [ ] T010 [US1] Write happy-path test scenario in `src/test/java/com/psybergate/financialcalculator/registration/UserRegistrationSpec.java` — use `@SpringBootTest`, `@AutoConfigureMockMvc`, `@ActiveProfiles("test")`: POST valid request → assert status 201, response body contains id, firstName, lastName, email
+- [x] T008 [US1] Implement `UserService` in `src/main/java/com/psybergate/financialcalculator/service/UserService.java` with method `UserResponse register(RegisterRequest request)` — lowercase the email before saving, map `User` entity to `UserResponse` DTO, inject `UserRepository`
+- [x] T009 [US1] Implement `AuthController` in `src/main/java/com/psybergate/financialcalculator/controller/AuthController.java` with `@RestController`, `@RequestMapping("/api/auth")` — add `POST /register` method that accepts `@RequestBody RegisterRequest`, delegates to `UserService`, returns `ResponseEntity` with `201 Created` status
+- [x] T010 [US1] Write happy-path test scenario in `src/test/java/com/psybergate/financialcalculator/registration/UserRegistrationSpec.java` — use `@SpringBootTest`, `@AutoConfigureMockMvc`, `@ActiveProfiles("test")`: POST valid request → assert status 201, response body contains id, firstName, lastName, email
 
 **Checkpoint**: `POST /api/auth/register` with valid data returns `201` and persists user. User Story 1 independently verified.
 
@@ -60,8 +60,8 @@ and exception infrastructure. No user story work begins until this phase is comp
 
 **Independent Test**: Register `test@example.com`, then register again with same email → second call returns `400` with correct error message.
 
-- [ ] T011 [US2] Add duplicate-email check to `UserService.register()` in `src/main/java/com/psybergate/financialcalculator/service/UserService.java` — call `userRepository.findByEmailIgnoreCase(email)` before saving; if present, throw `EmailAlreadyRegisteredException`
-- [ ] T012 [US2] Write duplicate-email test scenario in `src/test/java/com/psybergate/financialcalculator/registration/UserRegistrationSpec.java` — register same email twice → assert second call returns `400` with `message: "Email already registered"`. Also test case-insensitive duplicate (`USER@example.com` vs `user@example.com`) → same `400`
+- [x] T011 [US2] Add duplicate-email check to `UserService.register()` in `src/main/java/com/psybergate/financialcalculator/service/UserService.java` — call `userRepository.findByEmailIgnoreCase(email)` before saving; if present, throw `EmailAlreadyRegisteredException`
+- [x] T012 [US2] Write duplicate-email test scenario in `src/test/java/com/psybergate/financialcalculator/registration/UserRegistrationSpec.java` — register same email twice → assert second call returns `400` with `message: "Email already registered"`. Also test case-insensitive duplicate (`USER@example.com` vs `user@example.com`) → same `400`
 
 **Checkpoint**: Duplicate email (including case variants) consistently returns `400`. User Story 2 independently verified.
 
@@ -73,10 +73,10 @@ and exception infrastructure. No user story work begins until this phase is comp
 
 **Independent Test**: POST with blank `firstName` → `400`; blank `lastName` → `400`; invalid email format → `400`; empty body → `400`.
 
-- [ ] T013 [US3] Add Bean Validation annotations to `RegisterRequest` in `src/main/java/com/psybergate/financialcalculator/dto/RegisterRequest.java` — annotate `firstName` and `lastName` with `@NotBlank`, annotate `email` with `@NotBlank` and `@Email`
-- [ ] T014 [US3] Add `@Valid` annotation to the `@RequestBody RegisterRequest` parameter in `AuthController.register()` in `src/main/java/com/psybergate/financialcalculator/controller/AuthController.java`
-- [ ] T015 [US3] Verify `GlobalExceptionHandler` in `src/main/java/com/psybergate/financialcalculator/exception/GlobalExceptionHandler.java` correctly handles `MethodArgumentNotValidException` → extracts first field error and returns `400` with `{ "status": 400, "error": "Bad Request", "message": "<field>: <message>" }`
-- [ ] T016 [US3] Write validation test scenarios in `src/test/java/com/psybergate/financialcalculator/registration/UserRegistrationSpec.java` — assert `400` for: blank firstName, blank lastName, invalid email format `"not-an-email"`, whitespace-only firstName, empty request body
+- [x] T013 [US3] Add Bean Validation annotations to `RegisterRequest` in `src/main/java/com/psybergate/financialcalculator/dto/RegisterRequest.java` — annotate `firstName` and `lastName` with `@NotBlank`, annotate `email` with `@NotBlank` and `@Email`
+- [x] T014 [US3] Add `@Valid` annotation to the `@RequestBody RegisterRequest` parameter in `AuthController.register()` in `src/main/java/com/psybergate/financialcalculator/controller/AuthController.java`
+- [x] T015 [US3] Verify `GlobalExceptionHandler` in `src/main/java/com/psybergate/financialcalculator/exception/GlobalExceptionHandler.java` correctly handles `MethodArgumentNotValidException` → extracts first field error and returns `400` with `{ "status": 400, "error": "Bad Request", "message": "<field>: <message>" }`
+- [x] T016 [US3] Write validation test scenarios in `src/test/java/com/psybergate/financialcalculator/registration/UserRegistrationSpec.java` — assert `400` for: blank firstName, blank lastName, invalid email format `"not-an-email"`, whitespace-only firstName, empty request body
 
 **Checkpoint**: All invalid inputs return `400` with correct error shape. All three user stories verified. Full feature functional.
 
@@ -86,8 +86,8 @@ and exception infrastructure. No user story work begins until this phase is comp
 
 **Purpose**: Final verification and cleanup across all stories.
 
-- [ ] T017 Run all quickstart `curl` commands from `specs/001-user-registration/quickstart.md` against the running app and confirm each expected response matches
-- [ ] T018 Run `./mvnw test` from project root — confirm all tests pass with zero failures
+- [x] T017 Run all quickstart `curl` commands from `specs/001-user-registration/quickstart.md` against the running app and confirm each expected response matches
+- [x] T018 Run `./mvnw test` from project root — confirm all tests pass with zero failures
 
 ---
 
