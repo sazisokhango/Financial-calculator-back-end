@@ -17,7 +17,7 @@
 
 **Purpose**: Confirm baseline passes before adding any code.
 
-- [ ] T001 Verify all existing tests pass with `./mvnw test` from project root
+- [x] T001 Verify all existing tests pass with `./mvnw test` from project root
 
 ---
 
@@ -27,8 +27,8 @@
 
 ⚠️ **CRITICAL**: Both Phase 3 and Phase 4 depend on this phase.
 
-- [ ] T002 Create `UserNotFoundException` in `src/main/java/com/psybergate/financialcalculator/exception/UserNotFoundException.java` extending `RuntimeException` with a single `String message` constructor
-- [ ] T003 Update `GlobalExceptionHandler` in `src/main/java/com/psybergate/financialcalculator/exception/GlobalExceptionHandler.java` to handle `UserNotFoundException` → return `404 Not Found` with body `{ "status": 404, "error": "Not Found", "message": "User not found" }`
+- [x] T002 Create `UserNotFoundException` in `src/main/java/com/psybergate/financialcalculator/exception/UserNotFoundException.java` extending `RuntimeException` with a single `String message` constructor
+- [x] T003 Update `GlobalExceptionHandler` in `src/main/java/com/psybergate/financialcalculator/exception/GlobalExceptionHandler.java` to handle `UserNotFoundException` → return `404 Not Found` with body `{ "status": 404, "error": "Not Found", "message": "User not found" }`
 
 **Checkpoint**: Exception infrastructure ready — both user story phases can now begin.
 
@@ -40,9 +40,9 @@
 
 **Independent Test**: `GET /api/user` with two registered users → `200` with array of two `UserResponse` objects. `GET /api/user` with no users → `200` with `[]`.
 
-- [ ] T004 [US1] Add `findAll()` method to `UserService` in `src/main/java/com/psybergate/financialcalculator/service/UserService.java` — call `userRepository.findAll()`, map each `User` to `UserResponse` using builder, return `List<UserResponse>`
-- [ ] T005 [US1] Create `UserController` in `src/main/java/com/psybergate/financialcalculator/controller/UserController.java` with `@RestController`, `@RequestMapping("/api/user")` — add `GET` method mapped to `""` that calls `userService.findAll()` and returns `ResponseEntity<List<UserResponse>>` with `200 OK`
-- [ ] T006 [US1] Write `GET /api/user` test scenarios in `src/test/java/com/psybergate/financialcalculator/user/UserManagementSpec.java` — use `@SpringBootTest`, `@AutoConfigureMockMvc`, `@ActiveProfiles("test")`, `@BeforeEach` clears repo: (1) register two users then `GET /api/user` → assert `200` and array size 2 with correct fields; (2) no users registered → assert `200` and empty array `[]`
+- [x] T004 [US1] Add `findAll()` method to `UserService` in `src/main/java/com/psybergate/financialcalculator/service/UserService.java` — call `userRepository.findAll()`, map each `User` to `UserResponse` using builder, return `List<UserResponse>`
+- [x] T005 [US1] Create `UserController` in `src/main/java/com/psybergate/financialcalculator/controller/UserController.java` with `@RestController`, `@RequestMapping("/api/user")` — add `GET` method mapped to `""` that calls `userService.findAll()` and returns `ResponseEntity<List<UserResponse>>` with `200 OK`
+- [x] T006 [US1] Write `GET /api/user` test scenarios in `src/test/java/com/psybergate/financialcalculator/user/UserManagementSpec.java` — use `@SpringBootTest`, `@AutoConfigureMockMvc`, `@ActiveProfiles("test")`, `@BeforeEach` clears repo: (1) register two users then `GET /api/user` → assert `200` and array size 2 with correct fields; (2) no users registered → assert `200` and empty array `[]`
 
 **Checkpoint**: `GET /api/user` returns correct list. User Story 1 independently verified.
 
@@ -54,9 +54,9 @@
 
 **Independent Test**: Register a user, get their id from the list, `GET /api/user/{id}` → `200` with correct profile. `GET /api/user/999` → `404` with `message: "User not found"`.
 
-- [ ] T007 [US2] Add `findById(Long id)` method to `UserService` in `src/main/java/com/psybergate/financialcalculator/service/UserService.java` — call `userRepository.findById(id)`, map to `UserResponse` if present, throw `UserNotFoundException("User not found")` if absent
-- [ ] T008 [US2] Add `GET /{id}` endpoint to `UserController` in `src/main/java/com/psybergate/financialcalculator/controller/UserController.java` — method accepts `@PathVariable Long id`, delegates to `userService.findById(id)`, returns `ResponseEntity<UserResponse>` with `200 OK`
-- [ ] T009 [US2] Write `GET /api/user/{id}` test scenarios in `src/test/java/com/psybergate/financialcalculator/user/UserManagementSpec.java`: (1) register a user, retrieve their id, `GET /api/user/{id}` → assert `200` with correct firstName, lastName, email; (2) `GET /api/user/999` → assert `404`, `status: 404`, `error: "Not Found"`, `message: "User not found"`
+- [x] T007 [US2] Add `findById(Long id)` method to `UserService` in `src/main/java/com/psybergate/financialcalculator/service/UserService.java` — call `userRepository.findById(id)`, map to `UserResponse` if present, throw `UserNotFoundException("User not found")` if absent
+- [x] T008 [US2] Add `GET /{id}` endpoint to `UserController` in `src/main/java/com/psybergate/financialcalculator/controller/UserController.java` — method accepts `@PathVariable Long id`, delegates to `userService.findById(id)`, returns `ResponseEntity<UserResponse>` with `200 OK`
+- [x] T009 [US2] Write `GET /api/user/{id}` test scenarios in `src/test/java/com/psybergate/financialcalculator/user/UserManagementSpec.java`: (1) register a user, retrieve their id, `GET /api/user/{id}` → assert `200` with correct firstName, lastName, email; (2) `GET /api/user/999` → assert `404`, `status: 404`, `error: "Not Found"`, `message: "User not found"`
 
 **Checkpoint**: Both endpoints fully functional. All user stories verified.
 
@@ -64,7 +64,7 @@
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T010 Run `./mvnw test` from project root — confirm all tests (Feature 1 + Feature 2) pass with zero failures
+- [x] T010 Run `./mvnw test` from project root — confirm all tests (Feature 1 + Feature 2) pass with zero failures
 
 ---
 

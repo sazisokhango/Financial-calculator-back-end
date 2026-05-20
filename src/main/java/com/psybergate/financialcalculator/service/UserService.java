@@ -4,9 +4,12 @@ import com.psybergate.financialcalculator.dto.RegisterRequest;
 import com.psybergate.financialcalculator.dto.UserResponse;
 import com.psybergate.financialcalculator.entity.User;
 import com.psybergate.financialcalculator.exception.EmailAlreadyRegisteredException;
+import com.psybergate.financialcalculator.exception.UserNotFoundException;
 import com.psybergate.financialcalculator.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,11 +32,27 @@ public class UserService {
 
         User saved = userRepository.save(user);
 
+        return toResponse(saved);
+    }
+
+    public List<UserResponse> findAll() {
+        return userRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public UserResponse findById(Long id) {
+        return userRepository.findById(id)
+                .map(this::toResponse)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+    private UserResponse toResponse(User user) {
         return UserResponse.builder()
-                .id(saved.getId())
-                .firstName(saved.getFirstName())
-                .lastName(saved.getLastName())
-                .email(saved.getEmail())
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
                 .build();
     }
 }
