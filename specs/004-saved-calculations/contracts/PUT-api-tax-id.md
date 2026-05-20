@@ -40,8 +40,8 @@ Same shape as `POST /api/tax`:
   "id": 1, "userId": 1, "title": "Updated Tax",
   "salary": 600000.00, "age": 35,
   "totalIncome": 600000.00, "totalDeductions": 0.00,
-  "netTaxableIncome": 600000.00, "taxBeforeRebate": 148627.00,
-  "rebate": 17235.00, "taxAlreadyPaid": 0.00, "finalTaxLiability": 131392.00
+  "netTaxableIncome": 600000.00, "taxBeforeRebate": 152867.00,
+  "rebate": 17235.00, "taxAlreadyPaid": 0.00, "finalTaxLiability": 135632.00
 }
 ```
 

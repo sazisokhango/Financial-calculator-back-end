@@ -77,7 +77,7 @@ curl -s -X PUT "http://localhost:8080/api/tax/$CALC_ID" \
   -d "{\"userId\":$USER_ID,\"title\":\"Updated Tax\",\"salary\":600000,\"age\":35}" | jq
 ```
 
-**Expected (200)**: Updated breakdown — `finalTaxLiability: 131392.00`
+**Expected (200)**: Updated breakdown — `taxBeforeRebate: 152867.00`, `finalTaxLiability: 135632.00`
 
 ---
 
