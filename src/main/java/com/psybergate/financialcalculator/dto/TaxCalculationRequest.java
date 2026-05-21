@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 public class TaxCalculationRequest {
 
     @NotNull
-    private String userId;
+    private Long userId;
 
     @NotBlank
     private String title;
