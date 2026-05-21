@@ -14,6 +14,14 @@ Templates requiring updates:
   - .specify/templates/spec-template.md ✅ aligned (no mandatory section changes required)
   - .specify/templates/tasks-template.md ✅ aligned (task categories reflect layered architecture)
 Follow-up TODOs: none — all placeholders resolved
+
+---
+
+Version change: 1.0.0 → 1.0.1 (PATCH — 2026-05-21)
+Added: /api/investments endpoint definitions to Principle I and API Standards section (Feature 5 Investment Forecast)
+Modified principles: Principle I (endpoint list extended), API & Development Standards (base paths extended)
+Removed sections: N/A
+Templates requiring updates: none — no structural principle changes
 -->
 
 # Financial Calculator Back-End Constitution
@@ -25,16 +33,21 @@ Follow-up TODOs: none — all placeholders resolved
 Every feature MUST be exposed exclusively through a RESTful HTTP API.
 HTTP methods and status codes are non-negotiable:
 
-- `POST   /api/auth/register`  → `201 Created`
-- `GET    /api/user`           → `200 OK`
-- `GET    /api/user/{id}`      → `200 OK`
-- `POST   /api/tax`            → `201 Created`
-- `GET    /api/tax`            → `200 OK`
-- `GET    /api/tax/{id}`       → `200 OK`
-- `PUT    /api/tax/{id}`       → `200 OK`
-- `DELETE /api/tax/{id}`       → `204 No Content`
-- Resource not found           → `404 Not Found`
-- Invalid request body         → `400 Bad Request`
+- `POST   /api/auth/register`          → `201 Created`
+- `GET    /api/user`                   → `200 OK`
+- `GET    /api/user/{id}`              → `200 OK`
+- `POST   /api/tax`                    → `201 Created`
+- `GET    /api/tax`                    → `200 OK`
+- `GET    /api/tax/{id}`               → `200 OK`
+- `PUT    /api/tax/{id}`               → `200 OK`
+- `DELETE /api/tax/{id}`               → `204 No Content`
+- `POST   /api/investments/forecast`   → `201 Created`
+- `GET    /api/investments`            → `200 OK`
+- `GET    /api/investments/{id}`       → `200 OK`
+- `PUT    /api/investments/{id}`       → `200 OK`
+- `DELETE /api/investments/{id}`       → `204 No Content`
+- Resource not found                   → `404 Not Found`
+- Invalid request body                 → `400 Bad Request`
 
 All error responses MUST follow this exact JSON shape:
 
@@ -120,7 +133,7 @@ constitution amendment.
 
 ## API & Development Standards
 
-- API base paths: `/api/auth`, `/api/user`, `/api/tax`
+- API base paths: `/api/auth`, `/api/user`, `/api/tax`, `/api/investments`
 - All monetary fields serialised as `BigDecimal` (JSON number with 2 decimal places).
 - CORS MUST be configured to allow requests from `http://localhost:4200`.
 - A `README.md` MUST be maintained at the project root explaining how to run the application.
@@ -149,4 +162,4 @@ All implementation plans, task lists, and code reviews MUST verify compliance wi
 these principles before proceeding.
 Runtime development guidance is in `CLAUDE.md` (updated per active feature).
 
-**Version**: 1.0.0 | **Ratified**: 2026-05-20 | **Last Amended**: 2026-05-20
+**Version**: 1.0.1 | **Ratified**: 2026-05-20 | **Last Amended**: 2026-05-21

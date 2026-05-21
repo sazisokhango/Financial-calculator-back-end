@@ -9,7 +9,7 @@
 
 ## 1. Overview
 
-A Spring Boot RESTful API backed by PostgreSQL that enables users to register, manage their identity, perform South African tax calculations, and persist those calculations for future reference.
+A Spring Boot RESTful API backed by PostgreSQL that enables users to register, manage their identity, perform South African tax calculations, persist those calculations for future reference, and model investment growth through compound-interest forecasting.
 
 The application follows a simplified user-selection flow: users register once, then identify themselves by selecting their name from the user list — no password authentication.
 
@@ -19,6 +19,7 @@ The application follows a simplified user-selection flow: users register once, t
 
 - Provide a correct, SARS 2024/2025-compliant tax calculation engine
 - Allow users to persist, retrieve, update, and delete their tax calculations
+- Allow users to create, persist, and manage compound-interest investment forecasts
 - Expose a clean REST API consumable by the Angular front-end
 - Enforce strict input validation and return consistent error responses
 
@@ -27,13 +28,13 @@ The application follows a simplified user-selection flow: users register once, t
 ## 3. Users & Flow
 
 ```
-Register → Select Name (GET /api/user) → View / Create Calculations
+Register → Select Name (GET /api/user) → View / Create Calculations or Forecasts
 ```
 
 1. User registers with first name, last name, and email
 2. User sees all registered users and selects their own name
-3. User creates tax calculations scoped to their identity
-4. User can view, update, and delete their own saved calculations
+3. User creates tax calculations or investment forecasts scoped to their identity
+4. User can view, update, and delete their own saved calculations and forecasts
 
 ---
 
@@ -230,6 +231,129 @@ All endpoints are scoped to a specific user via `userId` in the request body or 
 
 ---
 
+### Feature 5 — Investment Forecast (CRUD)
+
+Allow users to create a compound-interest investment forecast, persist it, and manage it with full CRUD operations. Each forecast is scoped to a registered user.
+
+#### Input Fields
+
+| Field                | Type       | Required | Rules                        |
+|----------------------|------------|----------|------------------------------|
+| userId               | Long       | Yes      | Must reference an existing user |
+| title                | String     | Yes      | Not blank                    |
+| description          | String     | No       | —                            |
+| initialAmount        | BigDecimal | Yes      | >= 0                         |
+| monthlyContribution  | BigDecimal | Yes      | >= 0                         |
+| termMonths           | Integer    | Yes      | > 0                          |
+| annualInterestRate   | BigDecimal | Yes      | Between 0 and 100 (inclusive)|
+
+#### Calculation Logic
+
+**Monthly rate**
+```
+monthlyRate = annualInterestRate / 12 / 100
+```
+
+**Per-month projection** (iterate month 1 → termMonths)
+```
+startingBalance(1)   = initialAmount
+interestEarned(m)    = startingBalance(m) × monthlyRate
+endingBalance(m)     = startingBalance(m) + monthlyContribution + interestEarned(m)
+startingBalance(m+1) = endingBalance(m)
+```
+
+**Summary results**
+```
+projectedValue       = endingBalance(termMonths)
+totalContributions   = initialAmount + (monthlyContribution × termMonths)
+totalInterestEarned  = projectedValue − totalContributions
+roiPercentage        = (totalInterestEarned / totalContributions) × 100
+averageMonthlyGrowth = totalInterestEarned / termMonths
+```
+
+`BigDecimal` MUST be used for all monetary and percentage values.
+
+#### Create Forecast
+
+**Endpoint**: `POST /api/investments/forecast`
+
+**Response (201)**: Full forecast record including `id`, `forecastResults`, and complete `monthlyProjection` array.
+
+**Response (400)**: Validation failure.
+
+**Response (404)**: `userId` does not match a registered user.
+
+**Response body (201)**:
+```json
+{
+  "id": 1,
+  "title": "Retirement Growth Plan",
+  "description": "Long-term monthly investment",
+  "userId": 1,
+  "forecastResults": {
+    "projectedValue": 186245.00,
+    "totalContributions": 130000.00,
+    "totalInterestEarned": 56245.00,
+    "roiPercentage": 43.27,
+    "averageMonthlyGrowth": 937.41
+  },
+  "monthlyProjection": [
+    {
+      "month": 1,
+      "startingBalance": 10000.00,
+      "monthlyContribution": 2000.00,
+      "interestEarned": 100.00,
+      "endingBalance": 12100.00
+    },
+    {
+      "month": 2,
+      "startingBalance": 12100.00,
+      "monthlyContribution": 2000.00,
+      "interestEarned": 121.00,
+      "endingBalance": 14221.00
+    }
+  ]
+}
+```
+
+#### View All Forecasts (for a user)
+
+**Endpoint**: `GET /api/investments?userId={userId}`
+
+**Response (200)**: Array of all saved forecasts belonging to that user (full records including `monthlyProjection`).
+
+**Response (404)**: `userId` does not match a registered user.
+
+#### View Single Forecast
+
+**Endpoint**: `GET /api/investments/{id}`
+
+**Response (200)**: Full forecast record.
+
+**Response (404)**: Forecast not found.
+
+#### Update Forecast
+
+**Endpoint**: `PUT /api/investments/{id}`
+
+**Request Body**: Same fields as POST. The forecast is fully recalculated using the new inputs and the updated record is persisted.
+
+**Response (200)**: Updated forecast with recalculated `forecastResults` and `monthlyProjection`.
+
+**Response (400)**: Validation failure.
+
+**Response (404)**: Forecast not found.
+
+#### Delete Forecast
+
+**Endpoint**: `DELETE /api/investments/{id}`
+
+**Response (204)**: Deleted successfully.
+
+**Response (404)**: Forecast not found.
+
+---
+
 ## 5. Standard Error Response
 
 All error responses MUST follow this exact JSON shape:
@@ -263,12 +387,13 @@ No endpoint may return a different error structure.
 
 ## 7. Feature Roadmap
 
-| # | Feature                  | Priority |
-|---|--------------------------|----------|
-| 1 | User Registration        | P1       |
-| 2 | User Management          | P2       |
-| 3 | Tax Calculation Engine   | P3       |
-| 4 | Saved Calculations CRUD  | P4       |
+| # | Feature                    | Priority |
+|---|----------------------------|----------|
+| 1 | User Registration          | P1       |
+| 2 | User Management            | P2       |
+| 3 | Tax Calculation Engine     | P3       |
+| 4 | Saved Calculations CRUD    | P4       |
+| 5 | Investment Forecast (CRUD) | P5       |
 
 Each feature will be developed on its own branch following the SDD workflow:
 `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`
