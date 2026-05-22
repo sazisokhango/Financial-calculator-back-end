@@ -30,8 +30,8 @@ class SavedCalculationsSpec {
     @Autowired private UserRepository userRepository;
     @Autowired private TaxCalculationRepository taxCalculationRepository;
 
-    private Long userAId;
-    private Long userBId;
+    private String userAId;
+    private String userBId;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -173,21 +173,21 @@ class SavedCalculationsSpec {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private Long registerAndGetId(String first, String last, String email) throws Exception {
+    private String registerAndGetId(String first, String last, String email) throws Exception {
         MvcResult r = mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new RegisterRequest(first, last, email))))
                 .andReturn();
-        return objectMapper.readTree(r.getResponse().getContentAsString()).get("id").asLong();
+        return objectMapper.readTree(r.getResponse().getContentAsString()).get("email").toString();
     }
 
-    private void saveCalc(Long userId, String title, String salary, int age) throws Exception {
+    private void saveCalc(String userId, String title, String salary, int age) throws Exception {
         mockMvc.perform(post("/api/tax")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(buildRequest(userId, title, salary, age))));
     }
 
-    private Long saveCalcAndGetId(Long userId, String title, String salary, int age) throws Exception {
+    private Long saveCalcAndGetId(String userId, String title, String salary, int age) throws Exception {
         MvcResult r = mockMvc.perform(post("/api/tax")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(buildRequest(userId, title, salary, age))))
@@ -195,7 +195,7 @@ class SavedCalculationsSpec {
         return objectMapper.readTree(r.getResponse().getContentAsString()).get("id").asLong();
     }
 
-    private TaxCalculationRequest buildRequest(Long userId, String title, String salary, int age) {
+    private TaxCalculationRequest buildRequest(String userId, String title, String salary, int age) {
         TaxCalculationRequest r = new TaxCalculationRequest();
         r.setUserId(userId);
         r.setTitle(title);
