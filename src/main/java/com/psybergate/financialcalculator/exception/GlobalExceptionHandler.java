@@ -40,6 +40,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(404, "Not Found", ex.getMessage()));
     }
 
+    @ExceptionHandler(PropertyBondNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlePropertyBondNotFound(PropertyBondNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(404, "Not Found", ex.getMessage()));
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(error(400, "Bad Request", ex.getMessage()));

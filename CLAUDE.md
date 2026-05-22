@@ -1,11 +1,11 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan at:
-specs/006-investment-forecast/plan.md
+specs/007-property-bond/plan.md
 
 Constitution (source of truth): .specify/memory/constitution.md
-Feature spec:  specs/006-investment-forecast/spec.md
-Data model:    specs/006-investment-forecast/data-model.md
-API contracts: specs/006-investment-forecast/contracts/
-Quickstart:    specs/006-investment-forecast/quickstart.md
+Feature spec:  specs/007-property-bond/spec.md
+Data model:    specs/007-property-bond/data-model.md
+API contracts: specs/007-property-bond/contracts/
+Quickstart:    specs/007-property-bond/quickstart.md
 <!-- SPECKIT END -->

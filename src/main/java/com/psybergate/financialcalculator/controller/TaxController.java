@@ -24,8 +24,8 @@ public class TaxController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaxCalculationResponse>> getAllByUser(@RequestParam Long userId) {
-        return ResponseEntity.ok(taxCalculationService.findAllByUser(userId));
+    public ResponseEntity<List<TaxCalculationResponse>> getAllByUser(@RequestParam String userEmail) {
+        return ResponseEntity.ok(taxCalculationService.findAllByUser(userEmail));
     }
 
     @GetMapping("/{id}")
