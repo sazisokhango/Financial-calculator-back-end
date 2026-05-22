@@ -1,15 +1,15 @@
 # Product Requirements Document
 ## South African Tax Calculator API
 
-**Version**: 1.0.0
-**Date**: 2026-05-20
+**Version**: 1.1.0
+**Date**: 2026-05-22
 **Status**: Approved
 
 ---
 
 ## 1. Overview
 
-A Spring Boot RESTful API backed by PostgreSQL that enables users to register, manage their identity, perform South African tax calculations, persist those calculations for future reference, and model investment growth through compound-interest forecasting.
+A Spring Boot RESTful API backed by PostgreSQL that enables users to register, manage their identity, perform South African tax calculations, persist those calculations for future reference, model investment growth through compound-interest forecasting, and calculate property bond repayment plans.
 
 The application follows a simplified user-selection flow: users register once, then identify themselves by selecting their name from the user list — no password authentication.
 
@@ -20,6 +20,7 @@ The application follows a simplified user-selection flow: users register once, t
 - Provide a correct, SARS 2024/2025-compliant tax calculation engine
 - Allow users to persist, retrieve, update, and delete their tax calculations
 - Allow users to create, persist, and manage compound-interest investment forecasts
+- Allow users to calculate, persist, and manage property bond repayment plans
 - Expose a clean REST API consumable by the Angular front-end
 - Enforce strict input validation and return consistent error responses
 
@@ -33,8 +34,8 @@ Register → Select Name (GET /api/user) → View / Create Calculations or Forec
 
 1. User registers with first name, last name, and email
 2. User sees all registered users and selects their own name
-3. User creates tax calculations or investment forecasts scoped to their identity
-4. User can view, update, and delete their own saved calculations and forecasts
+3. User creates tax calculations, investment forecasts, or property bond plans scoped to their identity
+4. User can view, update, and delete their own saved calculations, forecasts, and bond plans
 
 ---
 
@@ -354,6 +355,134 @@ averageMonthlyGrowth = totalInterestEarned / termMonths
 
 ---
 
+### Feature 6 — Property Bond (CRUD)
+
+Allow users to calculate and forecast a property bond repayment plan. The backend calculates bond repayment projections and returns a repayment summary together with a full monthly breakdown. Each bond record is scoped to a registered user identified by email.
+
+#### Input Fields
+
+| Field               | Type       | Required | Rules                         |
+|---------------------|------------|----------|-------------------------------|
+| userEmail           | String     | Yes      | Must match a registered user  |
+| title               | String     | Yes      | Not blank                     |
+| description         | String     | No       | —                             |
+| initialAmount       | BigDecimal | Yes      | >= 0                          |
+| monthlyContribution | BigDecimal | Yes      | >= 0                          |
+| termMonths          | Integer    | Yes      | > 0                           |
+| interestRate        | BigDecimal | Yes      | Between 0 and 100 (inclusive) |
+
+#### Calculation Logic
+
+**Monthly rate**
+```
+monthlyRate = interestRate / 12 / 100
+```
+
+**Per-month projection** (iterate month 1 → termMonths)
+```
+startingBalance(1)   = initialAmount
+interestCharged(m)   = startingBalance(m) × monthlyRate
+principalPaid(m)     = monthlyContribution − interestCharged(m)
+endingBalance(m)     = startingBalance(m) − principalPaid(m)
+startingBalance(m+1) = MAX(0, endingBalance(m))
+```
+
+**Summary results**
+```
+totalLoanAmount      = initialAmount
+totalRepayments      = sum of all monthlyContribution values paid up to payoff
+totalInterestPaid    = sum of all interestCharged values
+remainingBalance     = MAX(0, endingBalance(termMonths))
+estimatedPayoffMonth = first month m where endingBalance(m) <= 0; if never, termMonths
+fullyPaid            = remainingBalance == 0
+```
+
+`BigDecimal` MUST be used for all monetary and percentage values.
+
+#### Create Bond
+
+**Endpoint**: `POST /api/bonds`
+
+**Response (201)**: Full bond record including `id`, `forecastResults`, and `monthlyProjection`.
+
+**Response (400)**: Validation failure.
+
+**Response (404)**: `userEmail` does not match a registered user.
+
+**Response body (201)**:
+```json
+{
+  "id": 1,
+  "title": "Family Home Bond",
+  "description": "Primary residence bond repayment",
+  "userEmail": "user@example.com",
+  "forecastResults": {
+    "totalLoanAmount": 1200000.00,
+    "totalRepayments": 2150000.00,
+    "totalInterestPaid": 950000.00,
+    "remainingBalance": 0.00,
+    "estimatedPayoffMonth": 240,
+    "fullyPaid": true
+  },
+  "monthlyProjection": [
+    {
+      "month": 1,
+      "startingBalance": 1200000.00,
+      "monthlyPayment": 12000.00,
+      "interestCharged": 11000.00,
+      "principalPaid": 1000.00,
+      "endingBalance": 1199000.00
+    },
+    {
+      "month": 2,
+      "startingBalance": 1199000.00,
+      "monthlyPayment": 12000.00,
+      "interestCharged": 10990.00,
+      "principalPaid": 1010.00,
+      "endingBalance": 1197990.00
+    }
+  ]
+}
+```
+
+#### View All Bonds (for a user)
+
+**Endpoint**: `GET /api/bonds?userEmail={userEmail}`
+
+**Response (200)**: Array of all saved bond records belonging to that user (full records including `monthlyProjection`).
+
+**Response (404)**: `userEmail` does not match a registered user.
+
+#### View Single Bond
+
+**Endpoint**: `GET /api/bonds/{id}`
+
+**Response (200)**: Full bond record.
+
+**Response (404)**: Bond not found.
+
+#### Update Bond
+
+**Endpoint**: `PUT /api/bonds/{id}`
+
+**Request Body**: Same fields as POST. The bond is fully recalculated using the new inputs and the updated record is persisted.
+
+**Response (200)**: Updated bond with recalculated `forecastResults` and `monthlyProjection`.
+
+**Response (400)**: Validation failure.
+
+**Response (404)**: Bond not found.
+
+#### Delete Bond
+
+**Endpoint**: `DELETE /api/bonds/{id}`
+
+**Response (204)**: Deleted successfully.
+
+**Response (404)**: Bond not found.
+
+---
+
 ## 5. Standard Error Response
 
 All error responses MUST follow this exact JSON shape:
@@ -394,6 +523,7 @@ No endpoint may return a different error structure.
 | 3 | Tax Calculation Engine     | P3       |
 | 4 | Saved Calculations CRUD    | P4       |
 | 5 | Investment Forecast (CRUD) | P5       |
+| 6 | Property Bond (CRUD)       | P6       |
 
 Each feature will be developed on its own branch following the SDD workflow:
 `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`

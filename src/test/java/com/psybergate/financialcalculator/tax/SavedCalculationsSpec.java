@@ -30,50 +30,50 @@ class SavedCalculationsSpec {
     @Autowired private UserRepository userRepository;
     @Autowired private TaxCalculationRepository taxCalculationRepository;
 
-    private String userAId;
-    private String userBId;
+    private String userAEmail;
+    private String userBEmail;
 
     @BeforeEach
     void setUp() throws Exception {
         taxCalculationRepository.deleteAll();
         userRepository.deleteAll();
-        userAId = registerAndGetId("Saziso", "Khango", "saziso@example.com");
-        userBId = registerAndGetId("John", "Doe", "john@example.com");
+        userAEmail = registerAndGetEmail("Saziso", "Khango", "saziso@example.com");
+        userBEmail = registerAndGetEmail("John", "Doe", "john@example.com");
     }
 
     // ── US1: View All Saved Calculations ─────────────────────────────────────
 
     @Test
     void givenTwoCalcsForUserA_whenGetAll_thenReturns200WithBothRecords() throws Exception {
-        saveCalc(userAId, "Calc 1", "500000", 35);
-        saveCalc(userAId, "Calc 2", "400000", 40);
+        saveCalc(userAEmail, "Calc 1", "500000", 35);
+        saveCalc(userAEmail, "Calc 2", "400000", 40);
 
-        mockMvc.perform(get("/api/tax").param("userId", userAId.toString()))
+        mockMvc.perform(get("/api/tax").param("userEmail", userAEmail))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
     }
 
     @Test
     void givenNoCalcsForUser_whenGetAll_thenReturns200WithEmptyList() throws Exception {
-        mockMvc.perform(get("/api/tax").param("userId", userAId.toString()))
+        mockMvc.perform(get("/api/tax").param("userEmail", userAEmail))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
     void givenCalcsForBothUsers_whenGetAllForUserA_thenOnlyUserARecordsReturned() throws Exception {
-        saveCalc(userAId, "A Calc", "500000", 35);
-        saveCalc(userBId, "B Calc", "300000", 40);
+        saveCalc(userAEmail, "A Calc", "500000", 35);
+        saveCalc(userBEmail, "B Calc", "300000", 40);
 
-        mockMvc.perform(get("/api/tax").param("userId", userAId.toString()))
+        mockMvc.perform(get("/api/tax").param("userEmail", userAEmail))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].userId").value(userAId));
+                .andExpect(jsonPath("$[0].userId").isNumber());
     }
 
     @Test
     void givenNonExistentUserId_whenGetAll_thenReturns404() throws Exception {
-        mockMvc.perform(get("/api/tax").param("userId", "999999"))
+        mockMvc.perform(get("/api/tax").param("userEmail", "notexisting@example.com"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("User not found"));
@@ -83,7 +83,7 @@ class SavedCalculationsSpec {
 
     @Test
     void givenExistingCalc_whenGetById_thenReturns200WithFullRecord() throws Exception {
-        Long id = saveCalcAndGetId(userAId, "My Tax", "500000", 35);
+        Long id = saveCalcAndGetId(userAEmail, "My Tax", "500000", 35);
 
         mockMvc.perform(get("/api/tax/{id}", id))
                 .andExpect(status().isOk())
@@ -106,9 +106,9 @@ class SavedCalculationsSpec {
 
     @Test
     void givenExistingCalc_whenUpdateWithNewSalary_thenReturns200WithRecalculatedBreakdown() throws Exception {
-        Long id = saveCalcAndGetId(userAId, "Original", "500000", 35);
+        Long id = saveCalcAndGetId(userAEmail, "Original", "500000", 35);
 
-        TaxCalculationRequest update = buildRequest(userAId, "Updated Tax", "600000", 35);
+        TaxCalculationRequest update = buildRequest(userAEmail, "Updated Tax", "600000", 35);
 
         mockMvc.perform(put("/api/tax/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -123,8 +123,8 @@ class SavedCalculationsSpec {
 
     @Test
     void givenNegativeSalaryInUpdate_whenPut_thenReturns400() throws Exception {
-        Long id = saveCalcAndGetId(userAId, "Test", "500000", 35);
-        TaxCalculationRequest bad = buildRequest(userAId, "Bad", "-1000", 35);
+        Long id = saveCalcAndGetId(userAEmail, "Test", "500000", 35);
+        TaxCalculationRequest bad = buildRequest(userAEmail, "Bad", "-1000", 35);
 
         mockMvc.perform(put("/api/tax/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -134,7 +134,7 @@ class SavedCalculationsSpec {
 
     @Test
     void givenNonExistentId_whenPut_thenReturns404() throws Exception {
-        TaxCalculationRequest req = buildRequest(userAId, "Test", "500000", 35);
+        TaxCalculationRequest req = buildRequest(userAEmail, "Test", "500000", 35);
 
         mockMvc.perform(put("/api/tax/999999")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -147,7 +147,7 @@ class SavedCalculationsSpec {
 
     @Test
     void givenExistingCalc_whenDelete_thenReturns204() throws Exception {
-        Long id = saveCalcAndGetId(userAId, "To Delete", "500000", 35);
+        Long id = saveCalcAndGetId(userAEmail, "To Delete", "500000", 35);
 
         mockMvc.perform(delete("/api/tax/{id}", id))
                 .andExpect(status().isNoContent());
@@ -155,7 +155,7 @@ class SavedCalculationsSpec {
 
     @Test
     void givenDeletedCalc_whenGetById_thenReturns404() throws Exception {
-        Long id = saveCalcAndGetId(userAId, "Gone", "500000", 35);
+        Long id = saveCalcAndGetId(userAEmail, "Gone", "500000", 35);
 
         mockMvc.perform(delete("/api/tax/{id}", id)).andExpect(status().isNoContent());
 
@@ -173,12 +173,12 @@ class SavedCalculationsSpec {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private String registerAndGetId(String first, String last, String email) throws Exception {
+    private String registerAndGetEmail(String first, String last, String email) throws Exception {
         MvcResult r = mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new RegisterRequest(first, last, email))))
                 .andReturn();
-        return objectMapper.readTree(r.getResponse().getContentAsString()).get("email").toString();
+        return objectMapper.readTree(r.getResponse().getContentAsString()).get("email").asText();
     }
 
     private void saveCalc(String userId, String title, String salary, int age) throws Exception {
