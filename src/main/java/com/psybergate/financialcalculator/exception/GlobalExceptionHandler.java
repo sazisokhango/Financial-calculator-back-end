@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.Instant;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -45,6 +46,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(404, "Not Found", ex.getMessage()));
     }
 
+    @ExceptionHandler(CarLoanNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCarLoanNotFound(CarLoanNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(404, "Not Found", ex.getMessage()));
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(error(400, "Bad Request", ex.getMessage()));
@@ -57,6 +63,7 @@ public class GlobalExceptionHandler {
     }
 
     private Map<String, Object> error(int status, String error, String message) {
-        return Map.of("status", status, "error", error, "message", message);
+        return Map.of("status", status, "error", error, "message", message,
+                "timestamp", Instant.now().toString());
     }
 }
