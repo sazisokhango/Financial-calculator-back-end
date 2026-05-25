@@ -1,0 +1,20 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Java 21, Spring Boot 3.5, Spring Data JPA, Spring Security, PostgreSQL, Lombok, JUnit 5
+  Build tool: Maven
+  Package: com.psybergate.financialcalculator
+  Domain: Financial calculator application (South African context — ZAR currency)
+  Existing features: Tax Calculator, Investment Forecast, Property Bond
+  Conventions:
+    - Controllers in controller/, Services in service/, Repositories in repository/, DTOs in dto/, Entities in model/
+    - Each feature has: Entity, Repository, Request DTO, Response DTO, Calculator (pure logic), Service, Controller
+    - REST endpoints are user-scoped: /api/users/{userId}/<resource>
+    - Tests live in src/test/java mirroring main structure; integration tests use @SpringBootTest
+    - Use conventional commits
+
+rules:
+  tasks:
+    - Each task should map to a single class or test file
+    - Include a separate task for the calculator (pure math logic) before the service task
+    - Always include integration test tasks for the controller endpoints
