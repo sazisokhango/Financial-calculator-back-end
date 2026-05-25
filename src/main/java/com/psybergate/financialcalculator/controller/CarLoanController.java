@@ -24,8 +24,8 @@ public class CarLoanController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CarLoanResponse>> findAll() {
-        return ResponseEntity.ok(carLoanService.findAll());
+    public ResponseEntity<List<CarLoanResponse>> findAllByUser(@RequestParam Long userId) {
+        return ResponseEntity.ok(carLoanService.findAllByUser(userId));
     }
 
     @GetMapping("/{id}")

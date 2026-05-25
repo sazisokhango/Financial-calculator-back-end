@@ -12,6 +12,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class CarLoanRequest {
 
+    @NotNull
+    private Long userId;
+
     @NotBlank
     private String title;
 

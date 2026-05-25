@@ -3,8 +3,11 @@ package com.psybergate.financialcalculator.service;
 import com.psybergate.financialcalculator.dto.*;
 import com.psybergate.financialcalculator.entity.CarLoan;
 import com.psybergate.financialcalculator.entity.CarLoanMonthlyProjection;
+import com.psybergate.financialcalculator.entity.User;
 import com.psybergate.financialcalculator.exception.CarLoanNotFoundException;
+import com.psybergate.financialcalculator.exception.UserNotFoundException;
 import com.psybergate.financialcalculator.repository.CarLoanRepository;
+import com.psybergate.financialcalculator.repository.UserRepository;
 import com.psybergate.financialcalculator.service.CarLoanCalculator.CarLoanResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,8 +21,11 @@ public class CarLoanService {
 
     private final CarLoanRepository carLoanRepository;
     private final CarLoanCalculator calculator;
+    private final UserRepository userRepository;
 
     public CarLoanResponse create(CarLoanRequest request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + request.getUserId()));
         validate(request);
         CarLoanResult result = calculator.calculate(
                 request.getPurchasePrice(), request.getInitialDeposit(),
@@ -27,12 +33,14 @@ public class CarLoanService {
                 request.getBalloonPayment(), request.getTermMonths(),
                 request.getInterestRate()
         );
-        CarLoan entity = buildEntity(request, result);
+        CarLoan entity = buildEntity(request, result, user);
         return toResponse(carLoanRepository.save(entity));
     }
 
-    public List<CarLoanResponse> findAll() {
-        return carLoanRepository.findAll().stream().map(this::toResponse).toList();
+    public List<CarLoanResponse> findAllByUser(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+        return carLoanRepository.findAllByUser_Id(userId).stream().map(this::toResponse).toList();
     }
 
     public CarLoanResponse findById(Long id) {
@@ -88,8 +96,9 @@ public class CarLoanService {
         }
     }
 
-    private CarLoan buildEntity(CarLoanRequest request, CarLoanResult result) {
+    private CarLoan buildEntity(CarLoanRequest request, CarLoanResult result, User user) {
         CarLoan entity = CarLoan.builder()
+                .user(user)
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .purchasePrice(request.getPurchasePrice())

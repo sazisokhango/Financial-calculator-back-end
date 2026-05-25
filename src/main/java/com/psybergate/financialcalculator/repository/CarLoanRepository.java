@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface CarLoanRepository extends JpaRepository<CarLoan, Long> {
     List<CarLoan> findAllByUserEmail(String userEmail);
+    List<CarLoan> findAllByUser_Id(Long userId);
 }
