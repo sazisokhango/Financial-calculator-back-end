@@ -71,8 +71,8 @@ public class TaxCalculationService {
         return toResponse(saved);
     }
 
-    public List<TaxCalculationResponse> findAllByUser(String userEmail) {
-        User user = userRepository.findByEmailIgnoreCase(userEmail)
+    public List<TaxCalculationResponse> findAllByUser(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         return taxCalculationRepository.findByUser(user).stream()
                 .map(this::toResponse)
